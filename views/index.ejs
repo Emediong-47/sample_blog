@@ -1,25 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog</title>
-    <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-    <h1>My Blog</h1>
-    <a href="/new">Create New Post</a>
-    <div>
-        <% if (posts.length === 0) { %>
-            <p>No posts yet. Create one!</p>
-        <% } else { %>
-            <% posts.forEach(post => { %>
-                <div>
-                    <h2><%= post.title %></h2>
-                    <p><%= post.content %></p>
-                </div>
-            <% }); %>
-        <% } %>
+<%- include("partials/header") %>
+<div class="container">
+    <h1>Welcome to My Blog</h1>
+    <p class="subtext">Share your thoughts with the world</p>
+    <div class="buttons">
+        <a href="/login" class="btn primary">Login</a>
+        <a href="/register" class="btn secondary">Register</a>
     </div>
-</body>
-</html>
+</div>
+<%- include("partials/footer") %>
