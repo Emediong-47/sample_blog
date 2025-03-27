@@ -1,127 +1,142 @@
-# Blog Web Application
+# Blog Web App
 
-This repository contains a simple yet functional Blog web application built using **Node.js**, **Express.js**, and **EJS**. The application is designed to demonstrate dynamic content rendering, basic routing, and a clean, user-friendly interface.
-
-## Table of Contents
-
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
+A **Blog Web Application** built using **Node.js**, **Express.js**, **PostgreSQL**, **EJS**, and **Passport.js** for authentication. This application allows users to create, edit, and delete blog posts while supporting local and OAuth-based authentication with **Google** and **Facebook**.
 
 ## Features
 
-- **Homepage**: Displays all blog posts in an elegant, responsive layout.
-- **Create New Post**: Users can submit blog posts through a simple form.
-- **Dynamic Rendering**: Utilizes EJS templates for rendering content dynamically.
-- **Responsive Design**: Ensures compatibility across various devices for an optimal user experience.
-
-## Technologies Used
-
-- **Node.js**: Backend runtime environment.
-- **Express.js**: Web application framework for routing and middleware.
-- **EJS**: Template engine for rendering dynamic HTML.
-- **CSS**: Custom styles for professional and polished UI.
+- 📝 **User Authentication**
+  - Local authentication with **email/password**
+  - OAuth authentication via **Google** and **Facebook**
+  - Secure password hashing using **bcrypt.js**
+- 🏠 **User Dashboard**
+  - View personal blog posts after login
+- ✍ **Create, Edit, and Delete Posts**
+  - Users can write, modify, and remove blog posts
+- 🔐 **Session Management**
+  - Maintains login sessions using **express-session**
+- 🎨 **Templating with EJS**
+  - Dynamic page rendering
+- 📂 **Persistent Storage**
+  - Stores users and posts in **PostgreSQL**
 
 ## Installation
 
-To set up this project locally, follow these steps:
+### Prerequisites
 
-1. Clone the repository:
+Ensure you have the following installed:
 
-   ```bash
-   git clone 'https://github.com/Emediong-47/sample_blog.git'
-   cd <repository_directory>
+- [Node.js](https://nodejs.org/)
+- [PostgreSQL](https://www.postgresql.org/)
+
+### Setup Instructions
+
+1. **Clone the Repository:**
+
+   ```sh
+   git clone https://github.com/your-username/blog-app.git
+   cd blog-app
    ```
 
-2. Install the dependencies:
+2. **Install Dependencies:**
 
-   ```bash
+   ```sh
    npm install
    ```
 
-3. Start the server:
+3. **Set Up PostgreSQL Database:**
 
-   ```bash
+   - Create a database and required tables:
+
+   ```sql
+   CREATE DATABASE blog_app;
+
+   CREATE TABLE users (
+       id SERIAL PRIMARY KEY,
+       name TEXT NOT NULL,
+       email TEXT UNIQUE NOT NULL,
+       password TEXT NOT NULL
+   );
+
+   CREATE TABLE posts (
+       post_id SERIAL PRIMARY KEY,
+       title TEXT NOT NULL,
+       post_details TEXT NOT NULL,
+       user_id INTEGER REFERENCES users(id)
+   );
+   ```
+
+4. **Configure Environment Variables:**
+
+   - Create a `.env` file in the root directory and add:
+
+   ```env
+   PG_USER=your_username
+   PG_HOST=localhost
+   PG_DATABASE=blog_app
+   PG_PASSWORD=your_password
+   PG_PORT=5432
+
+   SESSION_SECRET=your_secret_key
+   NODE_ENV=development
+
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   FACEBOOK_CLIENT_ID=your_facebook_client_id
+   FACEBOOK_CLIENT_SECRET=your_facebook_client_secret
+   ```
+
+5. **Start the Server:**
+
+   ```sh
    npm start
    ```
 
-   *For development, use:*
-
-   ```bash
-   npm run dev
-   ```
-
-   *(Requires ************`nodemon`************ for automatic restarts during code changes.)*
-
-4. Access the application in your browser at:
-
-   ```
-   http://localhost:3000
-   ```
-
-## Usage
-
-1. Visit the homepage to view existing blog posts.
-2. Click "Create New Post" to add a new blog entry.
-3. Fill out the form with the blog title and content, then submit.
-4. View your post displayed on the homepage.
+6. **Access the App:**
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Structure
 
 ```
-├── public
-│   └── styles.css      # Styling for the application
-├── views
-│   ├── index.ejs       # Homepage template
-│   └── new.ejs         # Form template for creating new posts
-├── app.js              # Main server logic
-├── package.json        # Project metadata and dependencies
-└── README.md           # Documentation
+.
+├── modules/         # Helper functions (password validation, DB queries)
+├── public/          # Static assets (CSS, images)
+├── views/           # EJS templates
+├── .env             # Environment variables
+├── app.js         # Main server file
+├── package.json     # Dependencies and scripts
+└── README.md        # Project documentation
 ```
 
-## Roadmap
+## Routes
 
-- **Database Integration**: Add persistent storage using MongoDB or another database.
-- **Authentication**: Implement user registration and login functionality.
-- **Post Management**: Allow users to edit and delete posts.
-- **Enhanced UI/UX**: Further improve responsiveness and aesthetic appeal.
-- **Deployment**: Host the application using services like Heroku or Vercel.
+| Route            | Method | Description          |
+| ---------------- | ------ | -------------------- |
+| `/`              | GET    | Landing Page         |
+| `/register`      | GET    | Register Page        |
+| `/login`         | GET    | Login Page           |
+| `/home`          | GET    | User Dashboard       |
+| `/new`           | GET    | New Post Page        |
+| `/edit/:id`      | GET    | Edit Post Page       |
+| `/delete/:id`    | GET    | Delete a Post        |
+| `/auth/google`   | GET    | Google OAuth Login   |
+| `/auth/facebook` | GET    | Facebook OAuth Login |
+| `/posts`         | POST   | Create New Post      |
+| `/edit/:id`      | POST   | Update Post          |
+| `/register`      | POST   | Register User        |
+| `/login`         | POST   | Login User           |
 
-## Contributing
+## Future Enhancements
 
-Contributions are welcome! If you have suggestions or find bugs, please:
-
-1. Fork the repository.
-2. Create a new branch:
-   ```bash
-   git checkout -b feature/YourFeatureName
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add YourFeatureName"
-   ```
-4. Push to the branch:
-   ```bash
-   git push origin feature/YourFeatureName
-   ```
-5. Open a pull request.
+- ✅ Comments system for posts
+- 📆 Add timestamps to posts
+- 👥 User profiles with avatars
+- 📱 API endpoints for mobile integration
+- 🔔 Email notifications for new posts
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute this project as per the license terms.
+This project is licensed under the MIT License.
 
 ---
 
-### Contact
-
-For questions or feedback, please reach out via [GitHub Issues](https://github.com/yourusername/repository/issues).
-
----
-
-Thank you for checking out this Blog Web Application. We hope you enjoy working with it!
-
+**Made with ❤️ by Emediong Uyobong Eshiet**
