@@ -1,11 +1,17 @@
 <%- include("partials/header") %>
 <div class="register-container">
     <h2>Create an Account</h2>
-    <form action="/register" method="POST">
+    <% if (typeof error !== 'undefined') { %>
+        <p style="color: red;"><%= error %></p>
+    <% } %>
+    <form id="registerForm" action="/register" method="POST">
         <input type="text" name="name" placeholder="Full Name" required>
         <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="password" placeholder="Password" required autocomplete="new-password">
         <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+        <% if (locals.passwordError) { %>
+            <p style="color: red;"><%= passwordError %></p>
+        <% } %>
         <button type="submit" class="btn primary">Register</button>
     </form>
     <p>or sign up with</p>

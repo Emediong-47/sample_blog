@@ -2,7 +2,10 @@
 <div class="container">
     <header>
         <h1>My Blog</h1>
-        <a href="/new" class="btn">+ Create New Post</a>
+        <% if (posts.length !== 0) { %>
+            <a href="/new" class="btn new" draggable="false">+ Create New Post</a>
+        <% } %>
+        
     </header>
     
     <div class="posts-container">
@@ -10,12 +13,15 @@
             <p class="no-posts">No posts yet. <a href="/new">Create one!</a></p>
         <% } else { %>
             <% posts.forEach(post => { %>
-                <div class="post-card">
+                <div class="post-card" id=<%= post.id %>>
                     <h2><%= post.title %></h2>
-                    <p><%= post.post_details %></p>
+                    <p><%= post.post_details %></p><hr>
+                    <h6 class="author"><strong>Author:</strong> <%= post.name %></h6>
+                    <a class="" href="/edit/<%= post.post_id %>">Edit post</a> 
+                    <a class="" href="/delete/<%= post.post_id %>">Delete post</a>
                 </div>
             <% }); %>
         <% } %>
+        <a href="/logout">Logout</a>
     </div>
 </div>
-<%- include("partials/footer") %>

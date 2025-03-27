@@ -11,7 +11,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100%;
     text-align: center;
     padding: 20px;
 }
@@ -19,12 +19,15 @@ body {
 /* Container */
 .container, .login-container, .register-container, .post-container {
     background: white;
+    margin-top: 22%;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 90%;
     max-width: 400px;
+    margin-top: 100px;
+    /* padding-top: 0px; */
 }
 
 .post-container {
@@ -75,6 +78,12 @@ textarea {
     border: none;
 }
 
+.btn.new {
+    color: #6058ae;
+    padding: 0px;
+    padding-bottom: 10px;
+}
+
 .btn.primary {
     background: #007bff;
 }
@@ -108,6 +117,11 @@ textarea {
 }
 
 /* Posts */
+h6.author {
+    font-size: 0.5rem;
+    text-align: left;
+    text-decoration: none;
+}
 .posts-container {
     display: flex;
     flex-direction: column;

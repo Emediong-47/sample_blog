@@ -8,13 +8,16 @@ import session from "express-session";
 import GoogleStrategy from "passport-google-oauth2";
 import FacebookStrategy from "passport-facebook";
 import { Strategy } from "passport-local";
+import { validatePassword } from "./modules/validatePassword.js";
+import { checkPassword } from "./modules/checkPassword.js";
+import { getPosts } from "./modules/getPosts.js";
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const saltRounds = 10;
 env.config();
 
-const db = new pg.Client({
+export const db = new pg.Client({
     user: process.env.PG_USER,
     host: process.env.PG_HOST,
     database: process.env.PG_DATABASE,
@@ -22,15 +25,6 @@ const db = new pg.Client({
     port: process.env.PG_PORT
 });
 db.connect();
-
-const posts = [];
-
-async function getPosts(query, params = []) {
-    const result = await db.query(query, params);
-    const posts = result.rows;
-    console.log(posts);
-    return posts;
-  }
 
 app.set("view engine", "ejs");
 
@@ -65,27 +59,53 @@ app.get("/home", async(req, res) => {
     
     try {
         if (!req.isAuthenticated() || !req.user) {
-            res.redirect("login");
+           return res.redirect("login");
         }
         console.log("Authenticated User:", req.user);
 
-        const posts = await getPosts(
-            `SELECT posts.title, posts.post_details, users.name, users.id
-            FROM posts
-            INNER JOIN users
-            ON posts.user_id = users.id
-            WHERE users.id = $1;`, [req.user.id]
-        );
+        const posts = await getPosts(req.user.id);
 
-        res.render("home", { posts: posts, user: req.user });
+        res.render("home", { posts: posts});
         
     } catch (error) {
         console.error("Error retriving user:", error);
-        res.redirect("/login");
+        return res.redirect("/login");
     }
 });
+
 app.get("/new", (req, res) => {
     res.render("new");
+});
+
+app.get("/edit/:id", async (req, res) => {
+    console.log(req.user, req.params)
+    try {
+        const result = await db.query("SELECT * FROM posts WHERE post_id = $1", [req.params.id]);
+        const post = result.rows[0];
+        res.render("edit", { posts: post } );
+    } catch (error) {
+        console.error("Error detected while editing data:", error);
+        res.redirect("/home");
+    }
+});
+
+app.get("/logout", (req, res, next) => {
+    req.logout(function(err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect("/home");
+    });
+});
+
+app.get("/delete/:id", async (req, res) => {
+    try {
+        await db.query("DELETE FROM posts WHERE posts.post_id = $1", [req.params.id]);
+        console.log("Post Deleted!!");
+        res.redirect("/home");
+    } catch (error) {
+        console.error("Error deleting data from database:", error);
+    }
 });
 
 app.get(
@@ -130,6 +150,18 @@ app.post("/posts", async(req, res) => {
     }
 });
 
+app.post("/edit/:id", async (req, res) => {
+    const { title, content } = req.body;
+    try {
+        const result = await db.query("UPDATE posts SET title = $1, post_details = $2 WHERE post_id = $3", [title, content, req.params.id]);
+        res.redirect("/home");
+    } catch (error) {
+        console.error("Error updating file to database:", error);
+        res.redirect("/login");
+    }
+
+});
+
 app.post("/login",
     passport.authenticate("local", {
         successRedirect: "/home",
@@ -142,12 +174,25 @@ app.post("/register", async (req, res) => {
     const name = req.body["name"];
     const email = req.body["email"];
     const password = req.body["password"];
+    const confirmPassword = req.body["confirmPassword"];
+
+    console.log(password, confirmPassword);
+
+    const passwordCheck = checkPassword(password, confirmPassword);
+    if (!passwordCheck.passwordMatch) {
+        return res.render("register", { passwordError: passwordCheck.message })
+    }
+
+    const validation = validatePassword(password);
+    if (!validation.isValid) {
+        return res.render("register", { error: validation.message });
+    }
 
     try {
         const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
 
         if (checkResult.rows.length > 0) {
-            req.redirect("/login");
+            res.redirect("/login");
         } else {
             bcrypt.hash(password, saltRounds, async(err, hash) => {
                 if (err) {
@@ -240,6 +285,7 @@ passport.use("facebook",
                 const result = await db.query("SELECT * FROM users WHERE password = $1", [profile.id]);
                 let user;
                 if (result.rows.length === 0) {
+
                   const newUser = await db.query(
                     "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
                     [profile.displayName, profile.provider, profile.id]);
