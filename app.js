@@ -32,7 +32,7 @@ app.set("view engine", "ejs");
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         secure: process.env.NODE_ENV === "production",
         maxAge: 1000 * 60 * 60
